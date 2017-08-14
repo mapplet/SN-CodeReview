@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database>
+    <element attributes="live_feed=true" label="Task" max_length="40" name="x_26324_codereview_task" type="collection">
+        <element label="Application File" max_length="32" name="app_file" reference="sys_metadata" type="reference"/>
+        <element label="App File Version" max_length="32" name="app_file_version" reference="sys_update_version" reference_qual="javascript:new ReferenceQualifier().getAppFileVersions(current)" type="reference" use_reference_qualifier="advanced"/>
+        <element label="App File Version Old" max_length="32" name="app_file_version_old" reference="sys_update_version" type="reference"/>
+        <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" type="string"/>
+        <index name="index">
+            <element name="app_file_version"/>
+        </index>
+        <index name="index2">
+            <element name="app_file_version_old"/>
+        </index>
+        <index name="index3">
+            <element name="app_file"/>
+        </index>
+    </element>
+</database>

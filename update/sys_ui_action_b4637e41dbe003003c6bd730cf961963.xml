@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update sys_domain="global" table="sys_ui_action">
+    <sys_ui_action action="INSERT_OR_UPDATE">
+        <action_name/>
+        <active>true</active>
+        <client>true</client>
+        <comments/>
+        <condition/>
+        <form_action>true</form_action>
+        <form_button>false</form_button>
+        <form_context_menu>false</form_context_menu>
+        <form_link>true</form_link>
+        <form_style/>
+        <hint/>
+        <list_action>false</list_action>
+        <list_banner_button>false</list_banner_button>
+        <list_button>false</list_button>
+        <list_choice>false</list_choice>
+        <list_context_menu>false</list_context_menu>
+        <list_link>false</list_link>
+        <list_save_with_form_button>false</list_save_with_form_button>
+        <list_style/>
+        <name>Compare versions</name>
+        <onclick>compare()</onclick>
+        <order>100</order>
+        <script><![CDATA[function compare() {
+	var ids = [
+		g_form.getValue('app_file_version'),
+		g_form.getValue('app_file_version_old')
+	];
+
+	if (ids.length != 2) {
+		alert("Can only compare 2 versions");
+		return;
+	}
+
+	var oneVersion = _getVersion(ids[0]);
+	if (oneVersion == null) {
+		alert(getMessage("This version for {0} is not found", ids[0]));
+		return;
+	}
+
+	var twoVersion = _getVersion(ids[1]);
+	if (twoVersion == null) {
+		alert(getMessage("This version for {0} is not found", ids[1]));
+		return;
+	}
+
+	if (oneVersion.name != twoVersion.name) {
+		alert(getMessage("Versions must be from same record"));
+		return;
+	}
+
+	//If one or two is current, then show compare to current form.
+	var url = "";
+	if (_isCurrentVersion(oneVersion)) {
+		url = "merge_form_current_version.do?sysparm_version_id=" + ids[1];
+		_showDiffMerge(url, ids);
+	} else if (_isCurrentVersion(twoVersion)) {
+		url = "merge_form_current_version.do?sysparm_version_id=" + ids[0];
+		_showDiffMerge(url, ids);
+	} else {
+		url = "merge_form_select_version_ro.do?sysparm_version1=" + ids[0] + "&sysparm_version2=" + ids[1];
+		_showDiffMerge(url, ids);
+	}
+}
+
+function createCompareWindow(answer) {
+	if (answer == "different names") {
+		alert("versions must be from same record");
+		return;
+	}
+	var dialog = new GlideBox({
+		body: answer,
+		title: 'Compare Versions',
+		height: '95%',
+		width: '95%',
+		autoDimensionOnLoad: true
+	});
+	answer.evalScripts(true);
+	dialog.render();
+}
+
+function _showDiffMerge(url, ids) {
+	ScriptLoader.getScripts('/script/RecordPayloadUtil.js', function() {
+		var ga0 = new GlideAjax('DiffMergeUICheck');
+		ga0.addParam('sysparm_name', 'isUISupported');
+		ga0.getXMLAnswer(function (isUISupported) {
+			if (isUISupported !== 'true') {
+				_showCompare(ids);
+			} else {
+				var returnUrl = gel('sysparm_referring_url');
+				window.location = url + "&sysparm_referring_url=" + returnUrl;
+			}
+		});
+	});
+}
+
+function _showCompare(ids) {
+	var ga = new GlideAjax("DiffAjax");
+	ga.addParam("sysparm_name", "diffTwoRecordPayloads");
+	ga.addParam("sysparm_record1", ids[0]);
+	ga.addParam("sysparm_record2", ids[1]);
+	ga.addParam("sysparm_table", "sys_update_version");
+	ga.getXMLAnswer(createCompareWindow);
+}
+
+// Måste göra AJAX-anrop för att hämta GlideRecord
+function _getVersion(sysId) {
+	var gr = new GlideRecord("sys_update_version");
+	gr.addQuery("sys_id", sysId);
+	gr.query();
+	if (!gr.next())
+		return null;
+
+	return gr;
+}
+
+function _isCurrentVersion(gr) {
+	if (gr == null)
+		return false;
+
+	return (gr.getValue("state") == "current");
+}]]></script>
+        <show_insert>false</show_insert>
+        <show_multiple_update>false</show_multiple_update>
+        <show_query>false</show_query>
+        <show_update>true</show_update>
+        <sys_class_name>sys_ui_action</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2017-08-11 14:27:15</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>b4637e41dbe003003c6bd730cf961963</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>Compare versions</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="Code Review" source="x_26324_codereview">eb0396cddb6003003c6bd730cf9619a3</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Code Review">eb0396cddb6003003c6bd730cf9619a3</sys_scope>
+        <sys_update_name>sys_ui_action_b4637e41dbe003003c6bd730cf961963</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2017-08-11 14:30:16</sys_updated_on>
+        <table>x_26324_codereview_task</table>
+        <ui11_compatible>true</ui11_compatible>
+        <ui16_compatible>false</ui16_compatible>
+    </sys_ui_action>
+</record_update>
